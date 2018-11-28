@@ -1,15 +1,10 @@
-load('api_aws.js');
-load('api_azure.js');
 load('api_config.js');
-load('api_dash.js');
 load('api_events.js');
-load('api_gcp.js');
 load('api_gpio.js');
 load('api_mqtt.js');
 load('api_shadow.js');
 load('api_timer.js');
 load('api_sys.js');
-load('api_watson.js');
 
 let btn = Cfg.get('board.btn1.pin');              // Built-in button GPIO
 let led = Cfg.get('board.led1.pin');              // Built-in LED GPIO number
@@ -34,7 +29,7 @@ let reportState = function() {
 Timer.set(1000, Timer.REPEAT, function() {
   state.uptime = Sys.uptime();
   state.ram_free = Sys.free_ram();
-  print('online:', online, JSON.stringify(state));
+  // print('online:', online, JSON.stringify(state));
   if (online) reportState();
 }, null);
 
@@ -58,7 +53,6 @@ Shadow.addHandler(function(event, obj) {
 });
 
 if (btn >= 0) {
-  let btnCount = 0;
   let btnPull, btnEdge;
   if (Cfg.get('board.btn1.pull_up') ? GPIO.PULL_UP : GPIO.PULL_DOWN) {
     btnPull = GPIO.PULL_UP;
@@ -71,32 +65,12 @@ if (btn >= 0) {
     state.btnCount++;
     let message = JSON.stringify(state);
     let sendMQTT = true;
-    if (Azure.isConnected()) {
-      print('== Sending Azure D2C message:', message);
-      Azure.sendD2CMsg('', message);
-      sendMQTT = false;
-    }
-    if (GCP.isConnected()) {
-      print('== Sending GCP event:', message);
-      GCP.sendEvent(message);
-      sendMQTT = false;
-    }
-    if (Watson.isConnected()) {
-      print('== Sending Watson event:', message);
-      Watson.sendEventJSON('ev', {d: state});
-      sendMQTT = false;
-    }
-    if (Dash.isConnected()) {
-      print('== Click!');
-      // TODO: Maybe do something else?
-      sendMQTT = false;
-    }
     // AWS is handled as plain MQTT since it allows arbitrary topics.
-    if (AWS.isConnected() || (MQTT.isConnected() && sendMQTT)) {
+    if (MQTT.isConnected()) {
       let topic = 'devices/' + Cfg.get('device.id') + '/events';
       print('== Publishing to ' + topic + ':', message);
       MQTT.pub(topic, message, 0 /* QoS */);
-    } else if (sendMQTT) {
+    } else {
       print('== Not connected!');
     }
   }, null);

@@ -1,4 +1,4 @@
-author: mongoose-os
+author: Srefan
 description: A JS-enabled demo Mongoose OS firmware
 # arch: PLATFORM
 version: 1.0
@@ -8,7 +8,8 @@ modules_version: ${mos.version}
 mongoose_os_version: ${mos.version}
 
 config_schema:
-  - ["mqtt.server", "iot.eclipse.org:1883"]
+  - ["mqtt.enable", true]
+  - ["mqtt.server", "kellysh.com:1883"]
   - ["i2c.enable", true]
 
 tags:
