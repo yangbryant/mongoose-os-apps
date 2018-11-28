@@ -29,7 +29,7 @@ let reportState = function() {
 Timer.set(1000, Timer.REPEAT, function() {
   state.uptime = Sys.uptime();
   state.ram_free = Sys.free_ram();
-  // print('online:', online, JSON.stringify(state));
+
   if (online) reportState();
 }, null);
 
