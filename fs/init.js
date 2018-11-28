@@ -25,6 +25,23 @@ let reportState = function() {
   Shadow.update(0, state);
 };
 
+MQTT.setEventHandler(function(conn, ev, edata) {
+  if (ev === MQTT.EV_CONNACK) {
+
+    let ledonTopic = 'devices/' + Cfg.get('device.id') + '/ledOn';
+    MQTT.sub(ledonTopic, function(conn, topic, message) {
+      print('Topic:', topic, ',Message:', message);
+      setLED(true);
+    }, null);
+
+    let ledoffTopic = 'devices/' + Cfg.get('device.id') + '/ledOff';
+    MQTT.sub(ledoffTopic, function(conn, topic, message) {
+      print('Topic:', topic, ',Message:', message);
+      setLED(false);
+    }, null);
+  }
+}, null);
+
 // Update state every second, and report to cloud if online
 Timer.set(1000, Timer.REPEAT, function() {
   state.uptime = Sys.uptime();
@@ -64,7 +81,6 @@ if (btn >= 0) {
   GPIO.set_button_handler(btn, btnPull, btnEdge, 20, function() {
     state.btnCount++;
     let message = JSON.stringify(state);
-    let sendMQTT = true;
     // AWS is handled as plain MQTT since it allows arbitrary topics.
     if (MQTT.isConnected()) {
       let topic = 'devices/' + Cfg.get('device.id') + '/events';
