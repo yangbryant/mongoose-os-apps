@@ -1,0 +1,37 @@
+author: mongoose-os
+description: A demo Mongoose OS firmware for C/C++
+version: 1.0
+
+libs_version: ${mos.version}
+modules_version: ${mos.version}
+mongoose_os_version: ${mos.version}
+
+tags:
+  - c
+
+sources:
+  - src
+
+cflags:
+  - "-Wno-error"
+
+filesystem:
+  - fs
+
+config_schema:
+  - ["mqtt.enable", true]
+  - ["mqtt.server", "kellysh.com:1883"]
+  - ["i2c.enable", true]
+  - ["wifi.sta.enable", true]
+  - ["wifi.sta.ssid", "zhengxin_2.4g"]
+  - ["wifi.sta.pass", "uiophjkl"]
+  - ["dash.enable", true]
+  - ["dash.token", "9916aec8399c50aea6dca1eb"]
+  - ["sntp.server", "0.cn.pool.ntp.org"]
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/boards
+  - origin: https://github.com/mongoose-os-libs/demo-bundle
+
+# Used by the mos tool to catch mos binaries incompatible with this file format
+manifest_version: 2017-05-18
