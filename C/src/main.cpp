@@ -4,6 +4,11 @@
 #include "mgos_wifi.h"
 #endif
 
+#include <Arduino.h>
+#include <mgos_arduino_ssd1306.h>
+
+Adafruit_SSD1306 *ssd = nullptr;
+
 static void timer_cb(void *arg) {
   static bool s_tick_tock = false;
   LOG(LL_INFO,
@@ -71,6 +76,22 @@ static void wifi_cb(int ev, void *evd, void *arg) {
 }
 #endif /* MGOS_HAVE_WIFI */
 
+static void show_num(Adafruit_SSD1306 *d, const char *s, int i) {
+  mgos_ssd1306_clear_display(d);
+  mgos_ssd1306_set_text_size(d, 2);
+  mgos_ssd1306_set_text_color(d, WHITE);
+  mgos_ssd1306_set_cursor(d, mgos_ssd1306_width(d)/4, mgos_ssd1306_height(d)/4);
+  mgos_ssd1306_write(ssd, s, sizeof(s));
+  mgos_ssd1306_display(ssd);
+}
+
+static void ssd_display_cb(void *arg) {
+  static int i = 0;
+  if (ssd != nullptr) show_num(ssd, "i = ", i);
+  i++;
+  (void) arg;
+}
+
 static void button_cb(int pin, void *arg) {
   char topic[100];
   snprintf(topic, sizeof(topic), "/devices/%s/events",
@@ -122,6 +143,13 @@ enum mgos_app_init_result mgos_app_init(void) {
 #ifdef MGOS_HAVE_WIFI
   mgos_event_add_group_handler(MGOS_WIFI_EV_BASE, wifi_cb, NULL);
 #endif
+
+  ssd = mgos_ssd1306_create_i2c(-1 /* RST GPIO */, MGOS_SSD1306_RES_128_64);
+  if (ssd != nullptr) {
+    mgos_ssd1306_begin(ssd, SSD1306_SWITCHCAPVCC, 0x3C, true /* reset */);
+    mgos_ssd1306_display(ssd);
+    mgos_set_timer(1000, true, ssd_display_cb, NULL);
+  }
 
   return MGOS_APP_INIT_SUCCESS;
 }

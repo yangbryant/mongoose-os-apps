@@ -15,6 +15,9 @@ sources:
 cflags:
   - "-Wno-error"
 
+cxxflags:
+  - "-Wno-error"
+
 filesystem:
   - fs
 
@@ -32,6 +35,8 @@ config_schema:
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
   - origin: https://github.com/mongoose-os-libs/demo-bundle
+
+  - origin: https://github.com/mongoose-os-libs/arduino-adafruit-ssd1306
 
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-05-18
